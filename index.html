@@ -140,10 +140,54 @@
       margin-bottom: 1rem;
     }
     
+    /* Desplegables */
+    details {
+      margin-top: 0.75rem;
+    }
+    
+    summary {
+      cursor: pointer;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    
+    summary::before {
+      content: "▶";
+      font-size: 0.7rem;
+      transition: transform 0.2s;
+    }
+    
+    details[open] summary::before {
+      transform: rotate(90deg);
+    }
+    
+    summary:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .details-content {
+      padding: 1rem;
+      margin-top: 0.5rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
     /* Taules */
     .taula-container {
       overflow-x: auto;
-      margin-bottom: 1rem;
     }
     
     table {
@@ -168,7 +212,6 @@
     .problemes {
       border-radius: 12px;
       padding: 1rem;
-      margin-bottom: 1rem;
     }
     
     .problema-item {
@@ -196,6 +239,7 @@
       border-radius: 12px;
       padding: 1rem;
       font-size: 0.9rem;
+      margin-top: 1rem;
     }
     
     .tendencia strong {
@@ -268,6 +312,7 @@
       h1 { font-size: 1.5rem; }
       .alerta-header { flex-direction: column; text-align: center; }
       th, td { padding: 0.5rem; font-size: 0.8rem; }
+      summary { padding: 0.6rem 0.8rem; font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -344,6 +389,25 @@
           problemaDesc = "Plaques a sotavent, orientacions E, N, S. Poden generar allaus mida petita-mitjana.";
         }
         
+        // Generar taula de gruixos
+        let taulaGruix = zones.map(zona => {
+          let gruix = "-";
+          const gruixMatch = zona.distribucio_mantell?.match(/(\d{2,3}[-–]\d{2,3})\s*cm/);
+          if (gruixMatch) gruix = gruixMatch[1] + " cm";
+          
+          let cotaNeu = "-";
+          const cotaMatch = zona.distribucio_mantell?.match(/neu[^.]*?(\d[\d.]*)\s*m/i);
+          if (cotaMatch) cotaNeu = cotaMatch[1] + "m";
+          
+          return `
+            <tr>
+              <td>${zona.nom}</td>
+              <td>${gruix}</td>
+              <td>${cotaNeu}</td>
+            </tr>
+          `;
+        }).join('');
+        
         html += `
           <div class="grup">
             <div class="grup-header">
@@ -353,7 +417,8 @@
             
             <p class="grup-zones"><strong>Zones:</strong> ${nomsZones}</p>
             
-            <div class="problemes perill-${nivell}" style="border: 1px solid;">
+            <!-- Problemes d'allaus -->
+            <div class="problemes perill-${nivell}" style="border: 1px solid; margin-top: 0.75rem;">
               <div class="problema-item">
                 <div class="problema-nom">❄️ Neu ventada (principal)</div>
                 <div class="problema-desc">${problemaDesc}</div>
@@ -364,45 +429,34 @@
               </div>
             </div>
             
-            <div class="taula-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Zona</th>
-                    <th>Gruix (2.200m)</th>
-                    <th>Neu des de</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${zones.map(zona => {
-                    // Extreure gruix del text
-                    let gruix = "-";
-                    const gruixMatch = zona.distribucio_mantell?.match(/(\d{2,3}[-–]\d{2,3})\s*cm/);
-                    if (gruixMatch) gruix = gruixMatch[1] + " cm";
-                    
-                    // Extreure cota neu
-                    let cotaNeu = "-";
-                    const cotaMatch = zona.distribucio_mantell?.match(/neu[^.]*?(\d[\d.]*)\s*m/i);
-                    if (cotaMatch) cotaNeu = cotaMatch[1] + "m";
-                    
-                    return `
-                      <tr>
-                        <td>${zona.nom}</td>
-                        <td>${gruix}</td>
-                        <td>${cotaNeu}</td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-            
+            <!-- Tendència -->
             ${zones[0]?.tendencia ? `
-              <div class="tendencia">
+              <div class="tendencia" style="margin-top: 0.75rem;">
                 <strong>📈 Tendència 48-72h:</strong>
                 ${zones[0].tendencia}
               </div>
             ` : ''}
+            
+            <!-- Gruix de neu (desplegable tancat) -->
+            <details>
+              <summary>📏 Gruix de neu per zona</summary>
+              <div class="details-content">
+                <div class="taula-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Zona</th>
+                        <th>Gruix (2.200m)</th>
+                        <th>Neu des de</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${taulaGruix}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </details>
           </div>
         `;
       });
