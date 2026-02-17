@@ -270,6 +270,33 @@
       padding: 1rem;
     }
     
+    /* Mapa ICGC */
+    .mapa-container {
+      margin-bottom: 1.5rem;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .mapa-container iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
+    
+    .mapa-fallback {
+      text-align: center;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      opacity: 0.7;
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .mapa-fallback a {
+      color: #60a5fa;
+    }
+    
     .btn-pdf {
       display: inline-block;
       background: rgba(96,165,250,0.2);
@@ -372,6 +399,14 @@
           </div>
         `;
       }
+      
+      // Mapa ICGC
+      html += `
+        <div class="mapa-container">
+          <iframe src="https://bpa.icgc.cat/" title="Mapa de perill d'allaus"></iframe>
+          <p class="mapa-fallback">Si no es veu el mapa: <a href="https://bpa.icgc.cat/" target="_blank">Obrir visor ICGC ↗</a></p>
+        </div>
+      `;
       
       // Grups per nivell de perill
       nivellsOrdenats.forEach(nivell => {
