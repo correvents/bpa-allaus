@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Butlletí Perill d'Allaus - Pirineu Catalunya</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 1.5rem;
+      color: #e2e8f0;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Loading */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+    }
+    
+    .loading-icon {
+      font-size: 4rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    /* Error */
+    .error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      max-width: 400px;
+      margin: 4rem auto;
+    }
+    
+    .error h2 { color: #fca5a5; margin: 1rem 0; }
+    
+    .error button {
+      background: #ef4444;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      color: white;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .header-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    
+    h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .data { opacity: 0.7; }
+    .actualitzat { font-size: 0.75rem; opacity: 0.5; margin-top: 0.5rem; }
+    
+    /* Alerta */
+    .alerta {
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      border-width: 2px;
+      border-style: solid;
+    }
+    
+    .alerta-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .alerta-emoji { font-size: 2.5rem; }
+    .alerta h2 { font-size: 1.3rem; }
+    .alerta p { margin-top: 0.5rem; opacity: 0.9; }
+    
+    .zones-perill {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    
+    /* Grups */
+    .grup {
+      margin-bottom: 1.5rem;
+    }
+    
+    .grup-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .grup-header h3 {
+      font-size: 1.2rem;
+    }
+    
+    .grup-zones {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+    
+    /* Taules */
+    .taula-container {
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    th {
+      opacity: 0.7;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    
+    /* Problemes */
+    .problemes {
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .problema-item {
+      margin-bottom: 0.75rem;
+    }
+    
+    .problema-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .problema-nom {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .problema-desc {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      line-height: 1.5;
+    }
+    
+    /* Tendència */
+    .tendencia {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .tendencia strong {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Colors per nivell de perill */
+    .perill-5 { background: rgba(0,0,0,0.8); border-color: #1f2937; }
+    .perill-5 h2, .perill-5 h3 { color: #fff; }
+    
+    .perill-4 { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+    .perill-4 h2, .perill-4 h3 { color: #fca5a5; }
+    
+    .perill-3 { background: rgba(249,115,22,0.15); border-color: #f97316; }
+    .perill-3 h2, .perill-3 h3 { color: #fdba74; }
+    
+    .perill-2 { background: rgba(250,204,21,0.15); border-color: #facc15; }
+    .perill-2 h2, .perill-2 h3 { color: #fef08a; }
+    
+    .perill-1 { background: rgba(34,197,94,0.15); border-color: #22c55e; }
+    .perill-1 h2, .perill-1 h3 { color: #86efac; }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+    }
+    
+    .btn-pdf {
+      display: inline-block;
+      background: rgba(96,165,250,0.2);
+      color: #60a5fa;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border: 1px solid rgba(96,165,250,0.3);
+    }
+    
+    .btn-pdf:hover {
+      background: rgba(96,165,250,0.3);
+    }
+    
+    .font-info {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      opacity: 0.5;
+    }
+    
+    .btn-refresh {
+      margin-top: 0.5rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: #e2e8f0;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    
+    .btn-refresh:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+      .alerta-header { flex-direction: column; text-align: center; }
+      th, td { padding: 0.5rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <div class="loading">
+      <div class="loading-icon">🏔️</div>
+      <p style="margin-top: 1rem; opacity: 0.8;">Carregant Butlletí de Perill d'Allaus...</p>
+    </div>
+  </div>
+
+  <script>
+    const GIST_URL = "https://gist.githubusercontent.com/correvents/bf2beb9bca2a338f7b06180b14ab139f/raw/bpa_latest.json";
+    
+    const getPerillEmoji = (nivell) => {
+      const emojis = { 5: "⚫", 4: "🔴", 3: "🟠", 2: "🟡", 1: "🟢" };
+      return emojis[nivell] || "⚪";
+    };
+    
+    const getPerillNom = (nivell) => {
+      const noms = { 5: "MOLT FORT", 4: "FORT", 3: "MARCAT", 2: "MODERAT", 1: "FEBLE" };
+      return noms[nivell] || "Desconegut";
+    };
+
+    const renderBPA = (bpa) => {
+      // Agrupar zones per nivell de perill
+      const grups = {};
+      bpa.zones.forEach(zona => {
+        const nivell = zona.perill_numeric || 0;
+        if (!grups[nivell]) grups[nivell] = [];
+        grups[nivell].push(zona);
+      });
+      
+      // Ordenar de més a menys perill
+      const nivellsOrdenats = Object.keys(grups).sort((a, b) => b - a);
+      
+      let html = `
+        <header>
+          <div class="header-icon">🏔️</div>
+          <h1>Butlletí de Perill d'Allaus</h1>
+          <p class="data">Pirineu de Catalunya — ${bpa.data}</p>
+          ${bpa.actualitzat ? `<p class="actualitzat">Actualitzat: ${new Date(bpa.actualitzat).toLocaleString('ca-ES')}</p>` : ''}
+        </header>
+      `;
+      
+      // Alerta general
+      if (bpa.resum) {
+        html += `
+          <div class="alerta perill-${bpa.resum.perill_maxim_numeric}">
+            <div class="alerta-header">
+              <div class="alerta-emoji">${getPerillEmoji(bpa.resum.perill_maxim_numeric)}</div>
+              <div>
+                <h2>ALERTA GENERAL: ${bpa.resum.perill_maxim} (${bpa.resum.perill_maxim_numeric})</h2>
+                <p>${bpa.resum.recomanacio}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Grups per nivell de perill
+      nivellsOrdenats.forEach(nivell => {
+        const zones = grups[nivell];
+        const nivellNum = parseInt(nivell);
+        const nomNivell = getPerillNom(nivellNum);
+        const emoji = getPerillEmoji(nivellNum);
+        const nomsZones = zones.map(z => z.nom).join(' · ');
+        
+        // Determinar descripció del problema
+        let problemaDesc = "";
+        if (nivellNum >= 3) {
+          problemaDesc = "Plaques molt fràgils sota colls i carenes. Poden caure al pas d'un esquiador. Mida mitjana-gran. Orientacions N, E, S.";
+        } else {
+          problemaDesc = "Plaques a sotavent, orientacions E, N, S. Poden generar allaus mida petita-mitjana.";
+        }
+        
+        html += `
+          <div class="grup">
+            <div class="grup-header">
+              <span style="font-size: 1.5rem;">${emoji}</span>
+              <h3>PERILL ${nomNivell} (${nivell})</h3>
+            </div>
+            
+            <p class="grup-zones"><strong>Zones:</strong> ${nomsZones}</p>
+            
+            <div class="problemes perill-${nivell}" style="border: 1px solid;">
+              <div class="problema-item">
+                <div class="problema-nom">❄️ Neu ventada (principal)</div>
+                <div class="problema-desc">${problemaDesc}</div>
+              </div>
+              <div class="problema-item">
+                <div class="problema-nom">💧 Neu humida (secundari)</div>
+                <div class="problema-desc">Purgues per sota 2.100m en vessants inclinats. Mida petita-mitjana.</div>
+              </div>
+            </div>
+            
+            <div class="taula-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Zona</th>
+                    <th>Gruix (2.200m)</th>
+                    <th>Neu des de</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${zones.map(zona => {
+                    // Extreure gruix del text
+                    let gruix = "-";
+                    const gruixMatch = zona.distribucio_mantell?.match(/(\d{2,3}[-–]\d{2,3})\s*cm/);
+                    if (gruixMatch) gruix = gruixMatch[1] + " cm";
+                    
+                    // Extreure cota neu
+                    let cotaNeu = "-";
+                    const cotaMatch = zona.distribucio_mantell?.match(/neu[^.]*?(\d[\d.]*)\s*m/i);
+                    if (cotaMatch) cotaNeu = cotaMatch[1] + "m";
+                    
+                    return `
+                      <tr>
+                        <td>${zona.nom}</td>
+                        <td>${gruix}</td>
+                        <td>${cotaNeu}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+            
+            ${zones[0]?.tendencia ? `
+              <div class="tendencia">
+                <strong>📈 Tendència 48-72h:</strong>
+                ${zones[0].tendencia}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      // Footer
+      html += `
+        <footer>
+          <a href="${bpa.url_pdf}" target="_blank" rel="noopener noreferrer" class="btn-pdf">
+            📄 Veure PDF original
+          </a>
+          <p class="font-info">${bpa.font}</p>
+          <button class="btn-refresh" onclick="carregarBPA()">🔄 Actualitzar</button>
+        </footer>
+      `;
+      
+      document.getElementById('app').innerHTML = html;
+    };
+
+    const renderError = (error) => {
+      document.getElementById('app').innerHTML = `
+        <div class="error">
+          <div style="font-size: 3rem;">⚠️</div>
+          <h2>Error</h2>
+          <p style="opacity: 0.8;">${error}</p>
+          <button onclick="carregarBPA()">Tornar a provar</button>
+        </div>
+      `;
+    };
+
+    const carregarBPA = async () => {
+      document.getElementById('app').innerHTML = `
+        <div class="loading">
+          <div class="loading-icon">🏔️</div>
+          <p style="margin-top: 1rem; opacity: 0.8;">Carregant Butlletí de Perill d'Allaus...</p>
+        </div>
+      `;
+      
+      try {
+        const response = await fetch(GIST_URL + "?t=" + Date.now());
+        
+        if (!response.ok) {
+          throw new Error("No s'han pogut carregar les dades");
+        }
+        
+        const bpa = await response.json();
+        
+        if (bpa.error) {
+          throw new Error(bpa.error);
+        }
+        
+        renderBPA(bpa);
+        
+      } catch (error) {
+        renderError(error.message);
+      }
+    };
+
+    // Carregar al iniciar
+    carregarBPA();
+  </script>
+</body>
+</html>
